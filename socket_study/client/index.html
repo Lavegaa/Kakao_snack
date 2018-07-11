@@ -1,0 +1,28 @@
+Hello World
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+
+
+<script>
+    var socket = io();
+
+   /* 
+   socket.emit('happy', {
+        reason:'asd'
+    })
+    */
+
+    var happy = function(){
+        socket.emit('happy', {
+            reason:'asd'
+        })
+    }
+
+
+    socket.on('serverMsg' , function(data){
+        console.log(data.msg);
+    });
+
+</script>
+
+<button onClick = "happy()">happy</button>
