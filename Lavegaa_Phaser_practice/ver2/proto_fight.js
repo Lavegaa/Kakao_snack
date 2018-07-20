@@ -98,18 +98,41 @@ class SecondScene extends Phaser.Scene {
       item.setName(i+1);
       itemList.push(item);
     }
-    itemList[0].setData({
-      hp: 0, atk: 2, def: 0
-    });
-    itemList[1].setData({
-      hp: 10, atk: 0, def: 1
-    });
-    itemList[2].setData({
-      hp: 5, atk: 2, def: 0
-    });
-    itemList[3].setData({
-      hp: 0, atk: 0, def: 2
-    });
+    // item's status instance randomly
+    for(let i=0; i<4; i++){
+      let pHp_i=0;
+      let pAtk_i=0;
+      let pDef_i=0;
+      let key = Math.floor(Math.random()*4)+1;
+      if(key==1){
+        pAtk_i = Math.floor(Math.random()*2)+2;
+      }
+      else if(key==2){
+        pHp_i = Math.floor(Math.random()*3)+9;
+      }
+      else if(key==3){
+        pHp_i = Math.floor(Math.random()*3)+4;
+        pAtk_i = Math.floor(Math.random()*2)+1;
+      }
+      else{
+        pDef_i = Math.floor(Math.random()*2)+2;
+      }
+      console.log('hp :' +pHp_i + ' atk : ' + pAtk_i + ' def : '+pDef_i);
+
+      itemList[i].setData({
+        hp : pHp_i,
+        atk : pAtk_i,
+        def : pDef_i
+      });
+
+      let item = this.add.text(50+180*i, 350, [
+        'HP: ' + pHp_i,
+        'ATK: ' + pAtk_i,
+        'DEF: ' + pDef_i
+      ], { fontsize: '40px', fill: '#000' });
+    }
+
+
 
     this.input.on('gameobjectover', function(pointer, gameObject) {
       gameObject.clearTint();
