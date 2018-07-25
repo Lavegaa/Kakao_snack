@@ -16,7 +16,49 @@ let equip = {
   }
 };
 
-class FirstScene extends Phaser.Scene {
+class IntroScene extends Phaser.Scene {
+  constructor(config) {
+    super({ key: 'intro' });
+  }
+  init() {
+
+  }
+  preload() {
+    this.load.image('title','img/title.png');
+    this.load.image('button','img/button.png');
+  }
+  create() {
+    this.add.image(400, 200, 'title').setDisplaySize(600,300);
+
+    let btnStart = this.add.image(300, 400, 'button').setDisplaySize(200,100).setInteractive();
+    btnStart.name = 'start';
+    this.add.text(240, 385, '게임시작', { fontSize: 30, fontStyle: 'bold'});
+    let btnHow = this.add.image(500, 400, 'button').setDisplaySize(200,100).setInteractive();
+    btnHow.name = 'how';
+    this.add.text(440, 385, '게임방법', { fontSize: 30, fontStyle: 'bold'});
+
+    this.input.on('gameobjectover', function(pointer, button) {
+      button.setTint(0xf0f0f0);
+    });
+    this.input.on('gameobjectout', function(pointer, button) {
+      button.clearTint();
+    });
+    this.input.on('gameobjectdown', function(pointer, button) {
+      switch (button.name) {
+        case 'start':
+          this.scene.start('first');
+          break;
+        case 'how':
+          break;
+      }
+    }, this);
+  }
+  update() {
+
+  }
+}
+
+class ChooseCharacterScene extends Phaser.Scene {
   constructor(config) {
     super({ key: 'first' });
     this.platformY = 400;
@@ -73,7 +115,7 @@ class FirstScene extends Phaser.Scene {
   }
 }
 
-class SecondScene extends Phaser.Scene {
+class ChooseItemScene extends Phaser.Scene {
   constructor() {
     super( { key: 'second' } );
   }
@@ -231,14 +273,17 @@ class SecondScene extends Phaser.Scene {
         ATK: gameObject.getData('atk'),
         DEF: gameObject.getData('def')
       }
-      player.HP += item.HP;
-      player.ATK += item.ATK;
-      player.DEF += item.DEF;
       switch (item.PART) {
         case 'weapon':
+          player.HP += (item.HP-equip.weapon.HP);
+          player.ATK += (item.ATK-equip.weapon.ATK);
+          player.DEF += (item.DEF-equip.weapon.DEF);
           equip.weapon = item;
           break;
         case 'armor':
+          player.HP += (item.HP-equip.armor.HP);
+          player.ATK += (item.ATK-equip.armor.ATK);
+          player.DEF += (item.DEF-equip.armor.DEF);
           equip.armor = item;
           break;
       }
@@ -250,7 +295,7 @@ class SecondScene extends Phaser.Scene {
   }
 }
 
-class ThirdScene extends Phaser.Scene {
+class FightScene extends Phaser.Scene {
   constructor() {
     super({ key: 'third' });
   }
@@ -262,7 +307,10 @@ class ThirdScene extends Phaser.Scene {
       ATK : (level*1)+4,
       DEF : (level*1)+1
     }
+    this.timer = 0;
+    this.turn = 'p';
   }
+
   preload() {
     this.load.image('player','img/character'+player.ID+'.png');
     this.load.image('status', 'img/status.png');
@@ -273,13 +321,17 @@ class ThirdScene extends Phaser.Scene {
     this.load.image('item4','img/item4.png');
     this.load.image('fight','img/fight.png');
     this.load.image('blank','img/blank.png');
+    this.load.image('win', 'img/win.png');
+    this.load.image('lose', 'img/lose.png');
+    this.load.image('button', 'img/button.png');
   }
+
   create() {
     //create container
     let container = this.add.container(400, 500);
     //view status
     let status = this.add.image(-200, 0, 'status').setDisplaySize(400,200);
-    let HP = this.add.text(-380, -80, 'HP: '+player.HP, { fontsize: '40px', fill: '#000' });
+    this.HP = this.add.text(-380, -80, 'HP: '+player.HP, { fontsize: '40px', fill: '#000' });
     let ATK = this.add.text(-380, -40, 'ATK: '+player.ATK, { fontsize: '40px', fill: '#000' });
     let DEF = this.add.text(-380, 0, 'DEF: '+player.DEF, { fontsize: '40px', fill: '#000' });
 
@@ -305,7 +357,7 @@ class ThirdScene extends Phaser.Scene {
     }
 
     container.add(status);
-    container.add(HP);
+    container.add(this.HP);
     container.add(ATK);
     container.add(DEF);
     container.add(inventory);
@@ -313,36 +365,54 @@ class ThirdScene extends Phaser.Scene {
     container.add(imgArmor);
 
     //monster's status
-    let M__HP = this.add.text(-100, -80, 'M_HP: '+this.monster.HP, { fontsize: '40px', fill: '#000' });
+    this.M__HP = this.add.text(-100, -80, 'M_HP: '+this.monster.HP, { fontsize: '40px', fill: '#000' });
     let M__ATK = this.add.text(-100, -40, 'M_ATK: '+this.monster.ATK, { fontsize: '40px', fill: '#000' });
     let M__DEF = this.add.text(-100, 0, 'M_DEF: '+this.monster.DEF, { fontsize: '40px', fill: '#000' });
     console.log(this.monster);
-    container.add(M__HP);
+    container.add(this.M__HP);
     container.add(M__ATK);
     container.add(M__DEF);
-    let fight = this.add.image(400,200,'fight').setDisplaySize(100,100).setInteractive();
 
-    let playerHP = player.HP;
-    let monsterHP = this.monster.HP;
-    fight.on('pointerdown', function(pointer) {
-      monsterHP -= player.ATK;
-      M__HP.setText('M_HP: '+monsterHP);
-      if (monsterHP<=0) { this.scene.start('second',{ char: player.ID, status : player } );
-      }
-      playerHP -= this.monster.ATK;
-      HP.setText('HP: ' + playerHP);
-      if (playerHP<=0) { this.scene.start('first'); }
-
-    }, this);
-
-
+    //fight event (per 1 second)
+    this.playerHP = player.HP;
+    this.monsterHP = this.monster.HP;
+    this.fightEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, loop: true });
 
   } //create end
 
   update() {
+    //clearTint timer
+    this.timer++;
+    if (this.timer%60 == 20) {
+      this.HP.clearTint();
+      this.M__HP.clearTint();
+    }
+  }
+
+  onEvent() {
+    //fight with turn
+    if (this.turn == 'p') {
+      this.monsterHP -= player.ATK;
+      this.M__HP.setText('M_HP: ' + this.monsterHP).setTintFill(0xff0000);
+      if (this.monsterHP<=0) {
+        this.scene.start('second');
+        this.fightEvent.remove(false);
+      }
+      this.turn = 'm';
+    } else {
+      this.playerHP -= this.monster.ATK;
+      this.HP.setText('HP: ' + this.playerHP).setTintFill(0xff0000);
+      if (this.playerHP<=0 && this.monsterHP>0) {
+        this.scene.start('first');
+        this.fightEvent.remove(false);
+      }
+      this.turn = 'p';
+    }
+    console.log('fighting!', this.playerHP, this.monsterHP);
 
   }
 }
+
 let config = {
   type: Phaser.AUTO,
   width: 800,
@@ -355,7 +425,7 @@ let config = {
       debug: false
     }
   },
-  scene: [ FirstScene, SecondScene, ThirdScene ]
+  scene: [ IntroScene, ChooseCharacterScene, ChooseItemScene, FightScene ]
 };
 
 let game = new Phaser.Game(config);
