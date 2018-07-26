@@ -13,6 +13,13 @@ let equip = {
     HP: 0,
     ATK: 0, 
     DEF: 0
+  },
+  status: {
+    ID: undefined,
+    PART: "status",
+    HP: 0,
+    ATK: 0, 
+    DEF: 0
   }
 };
 let level = 1;
@@ -181,35 +188,42 @@ class ChooseItemScene extends Phaser.Scene {
       let ATK__status=0;
       let DEF__status=0;
       let part = Math.floor(Math.random()*4)+1;
+      let part_what;
       if(level%2==1){
         if(part==1){
           ATK__item = Math.floor(Math.random()*2)+2*tier;
+          part_what = "weapon";
         }
         else if(part==2){
           HP__item = Math.floor(Math.random()*3)+9*tier;
+          part_what = "armor";
         }
         else if(part==3){
           HP__item = Math.floor(Math.random()*3)+4*tier;
           ATK__item = Math.floor(Math.random()*2)+1*tier;
+          part_what = "weapon";
         }
         else{
           DEF__item = Math.floor(Math.random()*2)+2*tier;
+          part_what = "armor";
         }
 
         itemList[i].setData({
           hp : HP__item,
           atk : ATK__item,
-          def : DEF__item
+          def : DEF__item,
+          part : part_what
         });
   
         let item = this.add.text(50+180*i, 350, [
           'HP: ' + HP__item,
           'ATK: ' + ATK__item,
-          'DEF: ' + DEF__item
+          'DEF: ' + DEF__item,
         ], { fontsize: '40px', fill: '#000' });
 
         console.log('hp :' +HP__item + ' atk : ' + ATK__item + ' def : '+DEF__item);
       }else{
+        part_what = "status";
         if(part==1){
           ATK__status = Math.floor(Math.random()*2)+1*tier;
         }
@@ -227,7 +241,8 @@ class ChooseItemScene extends Phaser.Scene {
         itemList[i].setData({
           hp : HP__status,
           atk : ATK__status,
-          def : DEF__status
+          def : DEF__status,
+          part : part_what
         });
   
         let item = this.add.text(50+180*i, 350, [
@@ -249,47 +264,69 @@ class ChooseItemScene extends Phaser.Scene {
       let itemDEF = gameObject.getData('def');
 
       //show status change
-      if (itemPART=='weapon') {
-        playerStatus.HP.setText('HP: ' + (player.HP-equip.weapon.HP+itemHP));
-        playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.weapon.ATK+itemATK))
-        playerStatus.DEF.setText('DEF: ' + (player.DEF-equip.weapon.DEF+itemDEF))
-
-        if (equip.weapon.HP<itemHP) {
-          playerStatus.HP.setTintFill(0x00ff00);
-        } else if (equip.weapon.HP>itemHP) {
-          playerStatus.HP.setTintFill(0xff0000);
+        if (itemPART=='weapon') {
+          playerStatus.HP.setText('HP: ' + (player.HP-equip.weapon.HP+itemHP));
+          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.weapon.ATK+itemATK))
+          playerStatus.DEF.setText('DEF: ' + (player.DEF-equip.weapon.DEF+itemDEF))
+  
+          if (equip.weapon.HP<itemHP) {
+            playerStatus.HP.setTintFill(0x00ff00);
+          } else if (equip.weapon.HP>itemHP) {
+            playerStatus.HP.setTintFill(0xff0000);
+          }
+          if (equip.weapon.ATK<itemATK) {
+            playerStatus.ATK.setTintFill(0x00ff00);
+          } else if (equip.weapon.ATK>itemATK) {
+            playerStatus.ATK.setTintFill(0xff0000);
+          }
+          if (equip.weapon.DEF<itemDEF) {
+            playerStatus.DEF.setTintFill(0x00ff00);
+          } else if (equip.weapon.DEF>itemDEF) {
+            playerStatus.DEF.setTintFill(0xff0000);
+          }
+        } else if (itemPART=='armor') {
+          playerStatus.HP.setText('HP: ' + (player.HP-equip.armor.HP+itemHP));
+          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.armor.ATK+itemATK))
+          playerStatus.DEF.setText('DEF: ' + (player.DEF-equip.armor.DEF+itemDEF))
+  
+          if (equip.armor.HP<itemHP) {
+            playerStatus.HP.setTintFill(0x00ff00);
+          } else if (equip.armor.HP>itemHP) {
+            playerStatus.HP.setTintFill(0xff0000);
+          }
+          if (equip.armor.ATK<itemATK) {
+            playerStatus.ATK.setTintFill(0x00ff00);
+          } else if (equip.armor.ATK>itemATK) {
+            playerStatus.ATK.setTintFill(0xff0000);
+          }
+          if (equip.armor.DEF<itemDEF) {
+            playerStatus.DEF.setTintFill(0x00ff00);
+          } else if (equip.armor.DEF>itemDEF) {
+            playerStatus.DEF.setTintFill(0xff0000);
+          }
+        }else if (itemPART == 'status'){
+          playerStatus.HP.setText('HP: ' + (player.HP+itemHP));
+          playerStatus.ATK.setText('ATK: ' + (player.ATK+itemATK))
+          playerStatus.DEF.setText('DEF: ' + (player.DEF+itemDEF))
+  
+          if (equip.status.HP<itemHP) {
+            playerStatus.HP.setTintFill(0x00ff00);
+          } else if (equip.status.HP>itemHP) {
+            playerStatus.HP.setTintFill(0xff0000);
+          }
+          if (equip.status.ATK<itemATK) {
+            playerStatus.ATK.setTintFill(0x00ff00);
+          } else if (equip.status.ATK>itemATK) {
+            playerStatus.ATK.setTintFill(0xff0000);
+          }
+          if (equip.status.DEF<itemDEF) {
+            playerStatus.DEF.setTintFill(0x00ff00);
+          } else if (equip.status.DEF>itemDEF) {
+            playerStatus.DEF.setTintFill(0xff0000);
+          }
         }
-        if (equip.weapon.ATK<itemATK) {
-          playerStatus.ATK.setTintFill(0x00ff00);
-        } else if (equip.weapon.ATK>itemATK) {
-          playerStatus.ATK.setTintFill(0xff0000);
-        }
-        if (equip.weapon.DEF<itemDEF) {
-          playerStatus.DEF.setTintFill(0x00ff00);
-        } else if (equip.weapon.DEF>itemDEF) {
-          playerStatus.DEF.setTintFill(0xff0000);
-        }
-      } else if (itemPART=='armor') {
-        playerStatus.HP.setText('HP: ' + (player.HP-equip.armor.HP+itemHP));
-        playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.armor.ATK+itemATK))
-        playerStatus.DEF.setText('DEF: ' + (player.DEF-equip.armor.DEF+itemDEF))
-
-        if (equip.armor.HP<itemHP) {
-          playerStatus.HP.setTintFill(0x00ff00);
-        } else if (equip.armor.HP>itemHP) {
-          playerStatus.HP.setTintFill(0xff0000);
-        }
-        if (equip.armor.ATK<itemATK) {
-          playerStatus.ATK.setTintFill(0x00ff00);
-        } else if (equip.armor.ATK>itemATK) {
-          playerStatus.ATK.setTintFill(0xff0000);
-        }
-        if (equip.armor.DEF<itemDEF) {
-          playerStatus.DEF.setTintFill(0x00ff00);
-        } else if (equip.armor.DEF>itemDEF) {
-          playerStatus.DEF.setTintFill(0xff0000);
-        }
-      }
+      
+      
 
     }, this);
     this.input.on('gameobjectout', function(pointer, gameObject) {
@@ -323,6 +360,11 @@ class ChooseItemScene extends Phaser.Scene {
           player.ATK += (item.ATK-equip.armor.ATK);
           player.DEF += (item.DEF-equip.armor.DEF);
           equip.armor = item;
+          break;
+        case 'status':
+          player.HP += (item.HP);
+          player.ATK += (item.ATK);
+          player.DEF += (item.DEF);
           break;
       }
       console.log("item: ", item);
@@ -413,7 +455,7 @@ class FightScene extends Phaser.Scene {
     //fight event (per 1 second)
     this.playerHP = player.HP;
     this.monsterHP = this.monster.HP;
-    this.fightEvent = this.time.addEvent({ delay: 100, callback: this.onEvent, callbackScope: this, loop: true });
+    this.fightEvent = this.time.addEvent({ delay: 500, callback: this.onEvent, callbackScope: this, loop: true });
 
   } //create end
 
