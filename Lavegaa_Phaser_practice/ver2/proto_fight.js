@@ -24,6 +24,9 @@ let equip = {
 };
 let level = 1;
 let tier = 1;
+let shp=0;
+let satk=0;
+let sdef=0;
 
 class IntroScene extends Phaser.Scene {
   constructor(config) {
@@ -154,9 +157,16 @@ class ChooseItemScene extends Phaser.Scene {
       tier++;
     }
     let playerStatus = {
+      Now: this.add.text(330, 60, 'level: '+level+' tier : '+tier ,{ fontSize: '20px', fill: '#000' }),
       HP: this.add.text(330, 80, 'HP: '+player.HP, { fontSize: '20px', fill: '#000' }),
       ATK: this.add.text(330, 100, 'ATK: '+player.ATK, { fontSize: '20px', fill: '#000' }),
-      DEF: this.add.text(330, 120, 'DEF: '+player.DEF, { fontSize: '20px', fill: '#000' })
+      DEF: this.add.text(330, 120, 'DEF: '+player.DEF, { fontSize: '20px', fill: '#000' }),
+      WHP: this.add.text(430, 80, 'WHP: '+equip.weapon.HP, { fontSize: '20px', fill: '#000' }),
+      WATK: this.add.text(430, 100, 'WATK: '+equip.weapon.ATK, { fontSize: '20px', fill: '#000' }),
+      WDEF: this.add.text(430, 120, 'WDEF: '+equip.weapon.DEF, { fontSize: '20px', fill: '#000' }),
+      WHP: this.add.text(530, 80, 'SHP: '+shp, { fontSize: '20px', fill: '#000' }),
+      WATK: this.add.text(530, 100, 'SATK: '+satk , { fontSize: '20px', fill: '#000' }),
+      WDEF: this.add.text(530, 120, 'SDEF: '+sdef, { fontSize: '20px', fill: '#000' })
     }
 
     this.add.image(430, 250, 'inventory').setDisplaySize(220,220);
@@ -196,7 +206,7 @@ class ChooseItemScene extends Phaser.Scene {
         }
         else if(part==2){
           HP__item = Math.floor(Math.random()*3)+9*tier;
-          part_what = "armor";
+          part_what = "weapon";
         }
         else if(part==3){
           HP__item = Math.floor(Math.random()*3)+4*tier;
@@ -205,7 +215,7 @@ class ChooseItemScene extends Phaser.Scene {
         }
         else{
           DEF__item = Math.floor(Math.random()*2)+2*tier;
-          part_what = "armor";
+          part_what = "weapon";
         }
 
         itemList[i].setData({
@@ -365,6 +375,9 @@ class ChooseItemScene extends Phaser.Scene {
           player.HP += (item.HP);
           player.ATK += (item.ATK);
           player.DEF += (item.DEF);
+          shp += item.HP;
+          satk += item.ATK;
+          sdef += item.DEF;
           break;
       }
       console.log("item: ", item);
