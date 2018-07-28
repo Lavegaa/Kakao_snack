@@ -5,28 +5,26 @@ let equip = {
     PART: "weapon",
     HP: 0,
     ATK: 0,
-    DEF: 0
+    SPECIAL:''
   },
   armor: {
     ID: undefined,
     PART: "armor",
     HP: 0,
-    ATK: 0, 
-    DEF: 0
+    ATK: 0,
+    SPECIAL:''
   },
   status: {
     ID: undefined,
     PART: "status",
     HP: 0,
-    ATK: 0, 
-    DEF: 0
+    ATK: 0,
   }
 };
 let level = 1;
 let tier = 1;
 let shp=0;
 let satk=0;
-let sdef=0;
 
 class IntroScene extends Phaser.Scene {
   constructor(config) {
@@ -95,16 +93,16 @@ class ChooseCharacterScene extends Phaser.Scene {
       charList.push(char);
     }
     charList[0].setData({
-      hp: 20, atk: 5, def: 1
+      hp: 20, atk: 5
     });
     charList[1].setData({
-      hp: 10, atk: 5, def: 3
+      hp: 10, atk: 5
     });
     charList[2].setData({
-      hp: 10, atk: 8, def: 1
+      hp: 10, atk: 8
     });
     charList[3].setData({
-      hp: 12, atk: 6, def: 2
+      hp: 12, atk: 6
     });
 
     this.input.on('gameobjectover', function(pointer, gameObject) {
@@ -117,8 +115,7 @@ class ChooseCharacterScene extends Phaser.Scene {
       player = {
         ID: gameObject.name,
         HP: gameObject.getData('hp'),
-        ATK: gameObject.getData('atk'),
-        DEF: gameObject.getData('def')
+        ATK: gameObject.getData('atk')
       }
       console.log(player);
       //change scene with data(image and status)
@@ -160,13 +157,11 @@ class ChooseItemScene extends Phaser.Scene {
       Now: this.add.text(330, 60, 'level: '+level+' tier : '+tier ,{ fontSize: '20px', fill: '#000' }),
       HP: this.add.text(330, 80, 'HP: '+player.HP, { fontSize: '20px', fill: '#000' }),
       ATK: this.add.text(330, 100, 'ATK: '+player.ATK, { fontSize: '20px', fill: '#000' }),
-      DEF: this.add.text(330, 120, 'DEF: '+player.DEF, { fontSize: '20px', fill: '#000' }),
+      SPECIAL: this.add.text(330, 120, 'SPECIAL: '+equip.weapon.SPECIAL, { fontSize: '20px', fill: '#000' }),
       WHP: this.add.text(430, 80, 'WHP: '+equip.weapon.HP, { fontSize: '20px', fill: '#000' }),
       WATK: this.add.text(430, 100, 'WATK: '+equip.weapon.ATK, { fontSize: '20px', fill: '#000' }),
-      WDEF: this.add.text(430, 120, 'WDEF: '+equip.weapon.DEF, { fontSize: '20px', fill: '#000' }),
-      WHP: this.add.text(530, 80, 'SHP: '+shp, { fontSize: '20px', fill: '#000' }),
-      WATK: this.add.text(530, 100, 'SATK: '+satk , { fontSize: '20px', fill: '#000' }),
-      WDEF: this.add.text(530, 120, 'SDEF: '+sdef, { fontSize: '20px', fill: '#000' })
+      SHP: this.add.text(530, 80, 'SHP: '+shp, { fontSize: '20px', fill: '#000' }),
+      SATK: this.add.text(530, 100, 'SATK: '+satk , { fontSize: '20px', fill: '#000' })
     }
 
     this.add.image(430, 250, 'inventory').setDisplaySize(220,220);
@@ -193,12 +188,13 @@ class ChooseItemScene extends Phaser.Scene {
     for(let i=0; i<4; i++){
       let HP__item=0;
       let ATK__item=0;
-      let DEF__item=0;
       let HP__status=0;
       let ATK__status=0;
-      let DEF__status=0;
       let part = Math.floor(Math.random()*4)+1;
       let part_what;
+      let special='';
+      let special_key=Math.floor(Math.random()*4);
+
       if(level%2==1){
         if(part==1){
           ATK__item = Math.floor(Math.random()*2)+2*tier;
@@ -214,24 +210,35 @@ class ChooseItemScene extends Phaser.Scene {
           part_what = "weapon";
         }
         else{
-          DEF__item = Math.floor(Math.random()*2)+2*tier;
+          HP__item = Math.floor(Math.random()*8*tier)+2;
+          ATK__item = Math.floor(Math.random()*2*tier)+1;
           part_what = "weapon";
+        }
+
+        if(special_key==0 && part_what=="weapon"){
+          special='DAttack';
+        }else if(special_key==1 && part_what=="weapon"){
+          special='GetHP';
+        }else if(special_key==2 && part_what=="weapon"){
+          special='Block';
+        }else if(special_key==3 && part_what=="weapon"){
+          special='Evade';
         }
 
         itemList[i].setData({
           hp : HP__item,
           atk : ATK__item,
-          def : DEF__item,
-          part : part_what
+          part : part_what,
+          special : special
         });
   
         let item = this.add.text(50+180*i, 350, [
           'HP: ' + HP__item,
           'ATK: ' + ATK__item,
-          'DEF: ' + DEF__item,
+          'SPECIAL: '+ special
         ], { fontsize: '40px', fill: '#000' });
 
-        console.log('hp :' +HP__item + ' atk : ' + ATK__item + ' def : '+DEF__item);
+        console.log('hp :' +HP__item + ' atk : ' + ATK__item +' special:'+special+' special_key: '+special_key);
       }else{
         part_what = "status";
         if(part==1){
@@ -245,20 +252,18 @@ class ChooseItemScene extends Phaser.Scene {
           ATK__status = Math.floor(Math.random()*1)+1*tier;
         }
         else{
-          DEF__status = Math.floor(Math.random()*2)+1*tier;
+
         }
-        console.log('hp :' +HP__status + ' atk : ' + ATK__status + ' def : '+DEF__status);
+        console.log('hp :' +HP__status + ' atk : ' + ATK__status );
         itemList[i].setData({
           hp : HP__status,
           atk : ATK__status,
-          def : DEF__status,
           part : part_what
         });
   
         let item = this.add.text(50+180*i, 350, [
           'HP: ' + HP__status,
-          'ATK: ' + ATK__status,
-          'DEF: ' + DEF__status
+          'ATK: ' + ATK__status
         ], { fontsize: '40px', fill: '#000' });
       }
 
@@ -271,14 +276,11 @@ class ChooseItemScene extends Phaser.Scene {
       let itemPART = gameObject.getData('part');
       let itemHP = gameObject.getData('hp');
       let itemATK = gameObject.getData('atk');
-      let itemDEF = gameObject.getData('def');
 
       //show status change
         if (itemPART=='weapon') {
           playerStatus.HP.setText('HP: ' + (player.HP-equip.weapon.HP+itemHP));
-          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.weapon.ATK+itemATK))
-          playerStatus.DEF.setText('DEF: ' + (player.DEF-equip.weapon.DEF+itemDEF))
-  
+          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.weapon.ATK+itemATK))  
           if (equip.weapon.HP<itemHP) {
             playerStatus.HP.setTintFill(0x00ff00);
           } else if (equip.weapon.HP>itemHP) {
@@ -289,16 +291,9 @@ class ChooseItemScene extends Phaser.Scene {
           } else if (equip.weapon.ATK>itemATK) {
             playerStatus.ATK.setTintFill(0xff0000);
           }
-          if (equip.weapon.DEF<itemDEF) {
-            playerStatus.DEF.setTintFill(0x00ff00);
-          } else if (equip.weapon.DEF>itemDEF) {
-            playerStatus.DEF.setTintFill(0xff0000);
-          }
         } else if (itemPART=='armor') {
           playerStatus.HP.setText('HP: ' + (player.HP-equip.armor.HP+itemHP));
-          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.armor.ATK+itemATK))
-          playerStatus.DEF.setText('DEF: ' + (player.DEF-equip.armor.DEF+itemDEF))
-  
+          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.armor.ATK+itemATK))  
           if (equip.armor.HP<itemHP) {
             playerStatus.HP.setTintFill(0x00ff00);
           } else if (equip.armor.HP>itemHP) {
@@ -309,16 +304,9 @@ class ChooseItemScene extends Phaser.Scene {
           } else if (equip.armor.ATK>itemATK) {
             playerStatus.ATK.setTintFill(0xff0000);
           }
-          if (equip.armor.DEF<itemDEF) {
-            playerStatus.DEF.setTintFill(0x00ff00);
-          } else if (equip.armor.DEF>itemDEF) {
-            playerStatus.DEF.setTintFill(0xff0000);
-          }
         }else if (itemPART == 'status'){
           playerStatus.HP.setText('HP: ' + (player.HP+itemHP));
-          playerStatus.ATK.setText('ATK: ' + (player.ATK+itemATK))
-          playerStatus.DEF.setText('DEF: ' + (player.DEF+itemDEF))
-  
+          playerStatus.ATK.setText('ATK: ' + (player.ATK+itemATK))  
           if (equip.status.HP<itemHP) {
             playerStatus.HP.setTintFill(0x00ff00);
           } else if (equip.status.HP>itemHP) {
@@ -328,11 +316,6 @@ class ChooseItemScene extends Phaser.Scene {
             playerStatus.ATK.setTintFill(0x00ff00);
           } else if (equip.status.ATK>itemATK) {
             playerStatus.ATK.setTintFill(0xff0000);
-          }
-          if (equip.status.DEF<itemDEF) {
-            playerStatus.DEF.setTintFill(0x00ff00);
-          } else if (equip.status.DEF>itemDEF) {
-            playerStatus.DEF.setTintFill(0xff0000);
           }
         }
       
@@ -346,7 +329,6 @@ class ChooseItemScene extends Phaser.Scene {
       //set status original
       playerStatus.HP.setText('HP: '+player.HP).clearTint();
       playerStatus.ATK.setText('ATK: '+player.ATK).clearTint();
-      playerStatus.DEF.setText('DEF: '+player.DEF).clearTint();
 
     }, this);
     this.input.on('gameobjectdown', function(pointer, gameObject) {
@@ -356,28 +338,24 @@ class ChooseItemScene extends Phaser.Scene {
         PART: gameObject.getData('part'),
         HP: gameObject.getData('hp'),
         ATK: gameObject.getData('atk'),
-        DEF: gameObject.getData('def')
+        SPECIAL: gameObject.getData('special')
       }
       switch (item.PART) {
         case 'weapon':
           player.HP += (item.HP-equip.weapon.HP);
           player.ATK += (item.ATK-equip.weapon.ATK);
-          player.DEF += (item.DEF-equip.weapon.DEF);
           equip.weapon = item;
           break;
         case 'armor':
           player.HP += (item.HP-equip.armor.HP);
           player.ATK += (item.ATK-equip.armor.ATK);
-          player.DEF += (item.DEF-equip.armor.DEF);
           equip.armor = item;
           break;
         case 'status':
           player.HP += (item.HP);
           player.ATK += (item.ATK);
-          player.DEF += (item.DEF);
           shp += item.HP;
           satk += item.ATK;
-          sdef += item.DEF;
           break;
       }
       console.log("item: ", item);
@@ -397,7 +375,6 @@ class FightScene extends Phaser.Scene {
     this.monster = {
       HP : (level*3)+10+(tier*2),
       ATK : (level*1)+4+(tier*1),
-      DEF : (level*1)+1+(tier*1)
     }
     this.timer = 0;
     this.turn = 'p';
@@ -425,7 +402,6 @@ class FightScene extends Phaser.Scene {
     let status = this.add.image(-200, 0, 'status').setDisplaySize(400,200);
     this.HP = this.add.text(-380, -80, 'HP: '+player.HP, { fontsize: '40px', fill: '#000' });
     let ATK = this.add.text(-380, -40, 'ATK: '+player.ATK, { fontsize: '40px', fill: '#000' });
-    let DEF = this.add.text(-380, 0, 'DEF: '+player.DEF, { fontsize: '40px', fill: '#000' });
 
     //view inventory
     let inventory = this.add.group({
@@ -451,7 +427,6 @@ class FightScene extends Phaser.Scene {
     container.add(status);
     container.add(this.HP);
     container.add(ATK);
-    container.add(DEF);
     container.add(inventory);
     container.add(imgWeapon);
     container.add(imgArmor);
@@ -459,16 +434,14 @@ class FightScene extends Phaser.Scene {
     //monster's status
     this.M__HP = this.add.text(-100, -80, 'M_HP: '+this.monster.HP, { fontsize: '40px', fill: '#000' });
     let M__ATK = this.add.text(-100, -40, 'M_ATK: '+this.monster.ATK, { fontsize: '40px', fill: '#000' });
-    let M__DEF = this.add.text(-100, 0, 'M_DEF: '+this.monster.DEF, { fontsize: '40px', fill: '#000' });
     console.log(this.monster);
     container.add(this.M__HP);
     container.add(M__ATK);
-    container.add(M__DEF);
 
     //fight event (per 1 second)
     this.playerHP = player.HP;
     this.monsterHP = this.monster.HP;
-    this.fightEvent = this.time.addEvent({ delay: 500, callback: this.onEvent, callbackScope: this, loop: true });
+    this.fightEvent = this.time.addEvent({ delay: 2000, callback: this.onEvent, callbackScope: this, loop: true });
 
   } //create end
 
@@ -481,9 +454,20 @@ class FightScene extends Phaser.Scene {
     }
   }
 
+
   onEvent() {
     //fight with turn
+    let lefthand = Math.floor(Math.random()*10);
     if (this.turn == 'p') {
+
+      if(equip.weapon.SPECIAL == 'DAttack' && lefthand<1){
+        this.monsterHP -= player.ATK;
+        console.log('DoubleAttack!');
+      }else if(equip.weapon.SPECIAL == 'GetHP' && lefthand<9){
+        this.playerHP += 3;
+        this.HP.setText('HP: ' + this.playerHP).setTintFill(0x00ff00);       
+      }
+
       this.monsterHP -= player.ATK;
       this.M__HP.setText('M_HP: ' + this.monsterHP).setTintFill(0xff0000);
       if (this.monsterHP<=0) {
@@ -493,6 +477,13 @@ class FightScene extends Phaser.Scene {
       }
       this.turn = 'm';
     } else {
+
+      if(equip.weapon.SPECIAL == 'Block' && lefthand<9){         //equip.armor.SPECIAL로 수정하기
+        this.playerHP +=3;
+      }else if(equip.weapon.SPECIAL == 'Evade' && lefthand<9){
+        this.playerHP += this.monster.ATK;
+      }
+
       this.playerHP -= this.monster.ATK;
       this.HP.setText('HP: ' + this.playerHP).setTintFill(0xff0000);
       if (this.playerHP<=0 && this.monsterHP>0) {
@@ -506,7 +497,7 @@ class FightScene extends Phaser.Scene {
     console.log('fighting!', this.playerHP, this.monsterHP);
 
   }
-}
+}//FightScene end
 
 let config = {
   type: Phaser.AUTO,
