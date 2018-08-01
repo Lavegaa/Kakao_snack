@@ -4,12 +4,16 @@ let titleWidth = gameWidth/5*4;
 let titleHeight = titleWidth;
 let player = {
   ID: undefined,
+  T_HP: true,
   HP: 0,
   ATK: 0,
+  SPECIAL: '',
   init: function() {
     this.ID = undefined;
+    this.T_HP = true,
     this.HP = 0;
     this.ATK = 0;
+    this.SPECIAL = '';
   }
 };
 let equip = {
@@ -17,47 +21,49 @@ let equip = {
     ID: undefined,
     PART: "weapon",
     HP: 0,
-    ATK: 0
+    ATK: 0,
+    SPECIAL:''
   },
   armor: {
     ID: undefined,
     PART: "armor",
     HP: 0,
-    ATK: 0
+    ATK: 0,
+    SPECIAL:''
   },
   status: {
     ID: undefined,
     PART: "status",
     HP: 0,
-    ATK: 0
+    ATK: 0,
   },
   init: function() {
     this.weapon = {
       ID: undefined,
       PART: "weapon",
       HP: 0,
-      ATK: 0
-    };
+      ATK: 0,
+      SPECIAL:''
+    },
     this.armor = {
       ID: undefined,
       PART: "armor",
       HP: 0,
-      ATK: 0
-    };
+      ATK: 0,
+      SPECIAL:''
+    },
     this.status = {
       ID: undefined,
       PART: "status",
       HP: 0,
-      ATK: 0
-    };
+      ATK: 0,
+    }
   }
 };
 let level = 1;
-let tier = 1;
+let stage = 1;
 let shp=0;
 let satk=0;
-
-let test = 0;
 
 class IntroScene extends Phaser.Scene {
   constructor(config) {
@@ -115,7 +121,6 @@ class ChooseCharacterScene extends Phaser.Scene {
     this.load.image('char1','img/character1.png');
     this.load.image('char2','img/character2.png');
     this.load.image('char3','img/character3.png');
-    this.load.image('char4','img/character4.png');
     this.load.image('UI','img/status.png');
     this.load.image('left','img/left.png');
     this.load.image('right','img/right.png');
@@ -124,14 +129,14 @@ class ChooseCharacterScene extends Phaser.Scene {
   create() {
     this.input.manager.enabled = true;
     //create character selection
-    this.add.image(gameWidth/2, gameHeight/16, 'UI').setDisplaySize(gameWidth, gameHeight/8);
-    this.nav1 = this.add.text(16,16,'Choose your character', { fontSize: '32px', fill: '#000' });
+    let imgNav = this.add.image(gameWidth/2, gameHeight/16, 'UI').setDisplaySize(gameWidth, gameHeight/8);
+    let txtNav = this.add.text(imgNav.x-imgNav.displayWidth/2,imgNav.y-imgNav.displayHeight/2,'Choose your character', { fontSize: imgNav.displayHeight/3, fill: '#000' }).setPadding({ left: imgNav.displayWidth/20, top: imgNav.displayHeight/10 });
 
     let now = 0;
     let charList = [
-      this.createCharacter(gameWidth/2, gameHeight/16*9, 1, 20, 5),
-      this.createCharacter(gameWidth/2, gameHeight/16*9, 2, 10, 5),
-      this.createCharacter(gameWidth/2, gameHeight/16*9, 3, 10, 8)
+      this.createCharacter(gameWidth/2, gameHeight/16*9, 1, 20, 6),
+      this.createCharacter(gameWidth/2, gameHeight/16*9, 2, 15, 8),
+      this.createCharacter(gameWidth/2, gameHeight/16*9, 3, 10, 10)
     ];
     charList[1].setVisible(false);
     charList[2].setVisible(false);
@@ -183,7 +188,7 @@ class ChooseCharacterScene extends Phaser.Scene {
     ], { fontSize: 12, fontStyle: 'bold', padding: 8 });
 
     let btnSelect = this.add.image(0, container.height*0.38, 'button').setDisplaySize(container.width/3,container.width/6).setInteractive();
-    let txtSelect = this.add.text(0, 0, '게임시작', { fontSize: btnSelect.displayHeight/3, fontStyle: 'bold'});
+    let txtSelect = this.add.text(0, 0, '선택', { fontSize: btnSelect.displayHeight/3, fontStyle: 'bold'});
     txtSelect.x = btnSelect.x - txtSelect.displayWidth/2;
     txtSelect.y = btnSelect.y - txtSelect.displayHeight/2;
 
@@ -202,7 +207,9 @@ class ChooseItemScene extends Phaser.Scene {
   }
   preload() {
     //load images
-    this.load.image('player','img/character'+player.ID+'.png');
+    this.load.image('char1','img/character1.png');
+    this.load.image('char2','img/character2.png');
+    this.load.image('char3','img/character3.png');
     this.load.image('UI','img/status.png');
     this.load.image('inventory','img/inventory.png');
     this.load.image('item1','img/item1.png');
@@ -213,14 +220,14 @@ class ChooseItemScene extends Phaser.Scene {
     this.load.image('blank','img/blank.png');
   }
   create() {
-    if (level%5==0) { tier++; }
+    if (level%5==0) { stage++; }
 
     let nav = this.add.container(gameWidth/2,gameHeight*0.05).setSize(gameWidth,gameHeight*0.1);
     let imgNavbg = this.add.image(0, 0, 'UI').setDisplaySize(nav.width, nav.height);
-    let txtNav = this.add.text(0, 0,'보상을 고르세요', { fontSize: nav.height*0.3, fill: '#000' }).setPadding({ left: nav.width/20 });
+    let txtNav = this.add.text(0, 0,'아이탬을 고르세요', { fontSize: nav.height*0.3, fill: '#000' }).setPadding({ left: nav.width/20 });
     txtNav.x = -nav.width/2;
     txtNav.y = -txtNav.height/2 - nav.height/6;
-    let txtNow = this.add.text(0, 0,'level: '+level+' tier : '+tier, { fontSize: nav.height*0.3, fill: '#000' }).setPadding({ left: nav.width/20 });
+    let txtNow = this.add.text(0, 0,'level: '+level+' stage : '+stage, { fontSize: nav.height*0.3, fill: '#000' }).setPadding({ left: nav.width/20 });
     txtNow.x = -nav.width/2;
     txtNow.y = -txtNow.height/2 + nav.height/6;
     nav.add([imgNavbg,txtNav,txtNow]);
@@ -228,7 +235,7 @@ class ChooseItemScene extends Phaser.Scene {
     //show chosen character & recent status
     let container = this.add.container(gameWidth/2,gameHeight*0.85).setSize(gameWidth,gameHeight*0.3);
     let imgBg = this.add.image(0,0,'UI').setDisplaySize(container.width, container.height);
-    let imgChar = this.add.image(-container.width*0.35, 0,  'player').setDisplaySize(container.height,container.height);
+    let imgChar = this.add.image(-container.width*0.35, 0,  'char'+player.ID).setDisplaySize(container.height,container.height);
     let imgWeaponBg = this.add.image(-container.width*0.025, -container.height*0.2, 'inventory').setDisplaySize(container.height*0.5, container.height*0.5);
     let imgArmorBg = this.add.image(container.width*0.325, -container.height*0.2, 'inventory').setDisplaySize(container.height*0.5, container.height*0.5);
     let imgWeapon, imgArmor;
@@ -255,9 +262,55 @@ class ChooseItemScene extends Phaser.Scene {
       this.createItem(gameWidth/4*3, gameHeight*0.25, this.setRandom()),
       this.createItem(gameWidth/4, gameHeight*0.55, this.setRandom()),
       this.createItem(gameWidth/4*3, gameHeight*0.55, this.setRandom())
-    ]
+    ];
 
     this.input.on('gameobjectdown', function(pointer, gameObject) {
+      if (gameObject.name == 'conPick') {
+        //call data variable
+        let itemPART = gameObject.getByName('btnPick').getData('part');
+        let itemHP = gameObject.getByName('btnPick').getData('hp');
+        let itemATK = gameObject.getByName('btnPick').getData('atk');
+
+        //initialize player status text
+        playerStatus.HP.setText('HP: ' + player.HP).clearTint();
+        playerStatus.ATK.setText('ATK: ' + player.ATK).clearTint();
+
+        //show status change
+        if (itemPART=='weapon') {
+          playerStatus.HP.setText('HP: ' + (player.HP-equip.weapon.HP+itemHP));
+          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.weapon.ATK+itemATK));
+
+          if (equip.weapon.HP<itemHP) {
+            playerStatus.HP.setTintFill(0x00ff00);
+          } else if (equip.weapon.HP>itemHP) {
+            playerStatus.HP.setTintFill(0xff0000);
+          }
+          if (equip.weapon.ATK<itemATK) {
+            playerStatus.ATK.setTintFill(0x00ff00);
+          } else if (equip.weapon.ATK>itemATK) {
+            playerStatus.ATK.setTintFill(0xff0000);
+          }
+        } else if (itemPART=='armor') {
+          playerStatus.HP.setText('HP: ' +  (player.HP-equip.armor.HP+itemHP));
+          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.armor.ATK+itemATK));
+
+          if (equip.armor.HP<itemHP) {
+            playerStatus.HP.setTintFill(0x00ff00);
+          } else if (equip.armor.HP>itemHP) {
+            playerStatus.HP.setTintFill(0xff0000);
+          }
+          if (equip.armor.ATK<itemATK) {
+            playerStatus.ATK.setTintFill(0x00ff00);
+          } else if (equip.armor.ATK>itemATK) {
+            playerStatus.ATK.setTintFill(0xff0000);
+          }
+        }
+      } else {
+        //set button tint
+        gameObject.setTint(0x606060);
+      }
+    }, this);
+    this.input.on('gameobjectup', function(pointer, gameObject) {
       if (gameObject.name == 'conPick') {
         if (gameObject.getData('pick')) {
           gameObject.setData('pick',false);
@@ -284,112 +337,105 @@ class ChooseItemScene extends Phaser.Scene {
               item.getByName('imgItem').setVisible(true);
             }
           }
-
-
-          //call data variable
-          let itemPART = gameObject.getByName('btnPick').getData('part');
-          let itemHP = gameObject.getByName('btnPick').getData('hp');
-          let itemATK = gameObject.getByName('btnPick').getData('atk');
-
-          //initialize player status text
-          playerStatus.HP.setText('HP: ' + player.HP).clearTint();
-          playerStatus.ATK.setText('ATK: ' + player.ATK).clearTint();
-
-          //show status change
-          if (itemPART=='weapon') {
-            playerStatus.HP.setText('HP: ' + (player.HP-equip.weapon.HP+itemHP));
-            playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.weapon.ATK+itemATK));
-
-            if (equip.weapon.HP<itemHP) {
-              playerStatus.HP.setTintFill(0x00ff00);
-            } else if (equip.weapon.HP>itemHP) {
-              playerStatus.HP.setTintFill(0xff0000);
-            }
-            if (equip.weapon.ATK<itemATK) {
-              playerStatus.ATK.setTintFill(0x00ff00);
-            } else if (equip.weapon.ATK>itemATK) {
-              playerStatus.ATK.setTintFill(0xff0000);
-            }
-          } else if (itemPART=='armor') {
-            playerStatus.HP.setText('HP: ' +  (player.HP-equip.armor.HP+itemHP));
-            playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.armor.ATK+itemATK));
-
-            if (equip.armor.HP<itemHP) {
-              playerStatus.HP.setTintFill(0x00ff00);
-            } else if (equip.armor.HP>itemHP) {
-              playerStatus.HP.setTintFill(0xff0000);
-            }
-            if (equip.armor.ATK<itemATK) {
-              playerStatus.ATK.setTintFill(0x00ff00);
-            } else if (equip.armor.ATK>itemATK) {
-              playerStatus.ATK.setTintFill(0xff0000);
-            }
-          } else {
-            //set button tint
-            gameObject.setTint(0x606060);
-          }
         }
+
+      } else {
+        //set tint to show it clearly
+        gameObject.clearTint();
+        //create item object & push into equip
+        let item = {
+          ID: gameObject.getData('id'),
+          PART: gameObject.getData('part'),
+          HP: gameObject.getData('hp'),
+          ATK: gameObject.getData('atk'),
+          SPECIAL: gameObject.getData('special')
+        }
+        switch (item.PART) {
+          case 'weapon':
+            player.HP += (item.HP-equip.weapon.HP);
+            player.ATK += (item.ATK-equip.weapon.ATK);
+            equip.weapon = item;
+            break;
+          case 'armor':
+            player.HP += (item.HP-equip.armor.HP);
+            player.ATK += (item.ATK-equip.armor.ATK);
+            equip.armor = item;
+            break;
+        }
+        console.log("item: ", item);
+        console.log("equip: ", equip);
+        //change scene with data(image and status)
+        this.scene.start('third');
       }
-    }, this);
-    this.input.on('gameobjectup', function(pointer, gameObject) {
-      if (gameObject.name == 'conPick') { return; }
-      //set tint to show it clearly
-      gameObject.clearTint();
-      //create item object & push into equip
-      let item = {
-        ID: gameObject.getData('id'),
-        PART: gameObject.getData('part'),
-        HP: gameObject.getData('hp'),
-        ATK: gameObject.getData('atk')
-      }
-      switch (item.PART) {
-        case 'weapon':
-          player.HP += (item.HP-equip.weapon.HP);
-          player.ATK += (item.ATK-equip.weapon.ATK);
-          equip.weapon = item;
-          break;
-        case 'armor':
-          player.HP += (item.HP-equip.armor.HP);
-          player.ATK += (item.ATK-equip.armor.ATK);
-          equip.armor = item;
-          break;
-      }
-      console.log("item: ", item);
-      console.log("equip: ", equip);
-      //change scene with data(image and status)
-      this.scene.start('third');
     }, this);
   }
 
   setRandom() {
     // item's status instance randomly
-    let HP__item=0;
-    let ATK__item=0;
-    let part = Math.floor(Math.random()*4)+1;
-    let part_what;
-    if(part==1){
-      ATK__item = Math.floor(Math.random()*2)+2*tier;
-      part_what = "weapon";
-    }
-    else if(part==2){
-      HP__item = Math.floor(Math.random()*3)+9*tier;
-      part_what = "weapon";
-    }
-    else if(part==3){
-      HP__item = Math.floor(Math.random()*3)+4*tier;
-      ATK__item = Math.floor(Math.random()*2)+1*tier;
-      part_what = "weapon";
-    }
-    else{
-      ATK__item = Math.floor(Math.random()*2)+2*tier;
-      part_what = "weapon";
-    }
+      let HP__item=0;
+      let ATK__item=0;
+      let percent = Math.floor(Math.random()*100);
+      let part;
+      let part_what;
+      let special='None';
+      let special_key=Math.floor(Math.random()*2);
+
+      if(percent<35){
+        part = 1;
+        ATK__item = Math.floor(Math.random()*2)+3*stage;
+        part_what = "weapon";
+      }
+      else if(percent<70){
+        part = 2;
+        HP__item = Math.floor(Math.random()*3)+8*stage;
+        part_what = "armor";
+      }
+      else if(percent<90){
+        part = 3;
+        if(percent%2==0){
+          HP__item = Math.floor(Math.random()*3)+2*stage;
+          ATK__item = Math.floor(Math.random()*2)+2*stage;
+          part_what = "weapon";
+        }else{
+          HP__item = Math.floor(Math.random()*8*stage)+2;
+          ATK__item = Math.floor(Math.random()*2*stage)+1;
+          part_what = "armor";
+        }
+      }else if(percent<100){
+        part = 4;
+        if(percent%2==0){
+          if(special_key==0){
+            HP__item = Math.floor(Math.random()*3)+4*stage;
+            ATK__item = Math.floor(Math.random()*2)+4*stage;
+            part_what = "weapon";
+            special='DAttack';
+          }else{
+            HP__item = Math.floor(Math.random()*3)+4*stage;
+            ATK__item = Math.floor(Math.random()*2)+4*stage;
+            part_what = "weapon";
+            special='GetHP';
+          }
+        }else{
+          if(special_key==0){
+            HP__item = Math.floor(Math.random()*3)+10*stage;
+            ATK__item = Math.floor(Math.random()*2)+2*stage;
+            part_what = "armor";
+            special='Block';
+          }else{
+            HP__item = Math.floor(Math.random()*3)+10*stage;
+            ATK__item = Math.floor(Math.random()*2)+2*stage;
+            part_what = "armor";
+            special='Evade';
+          }
+        }
+      }
 
     let item = {
       ID: part,
       PART: part_what,
       HP: HP__item,
-      ATK: ATK__item
+      ATK: ATK__item,
+      SPECIAL : special
     };
     return item;
   }
@@ -402,13 +448,14 @@ class ChooseItemScene extends Phaser.Scene {
     let txtStatus = this.add.text(-imgStatusBg.displayWidth/2, 0, [
       'PART: ' + item.PART,
       'HP: ' + item.HP,
-      'ATK: ' + item.ATK
+      'ATK: ' + item.ATK,
+      'SPECIAL: ' + item.SPECIAL
     ], { fontSize: imgStatusBg.displayHeight/4, fontStyle: 'bold' }).setPadding({ left: 8 });
     txtStatus.y = imgStatusBg.y - txtStatus.height/2;
 
     let btnSelect = this.add.image(0, -container.height*0.2, 'button').setDisplaySize(container.width/2,container.width/4).setInteractive();
     btnSelect.setName('btnPick').setVisible(false);
-    btnSelect.setData({ id: item.ID, part: item.PART, hp: item.HP, atk: item.ATK });
+    btnSelect.setData({ id: item.ID, part: item.PART, hp: item.HP, atk: item.ATK, special: item.SPECIAL });
     let txtSelect = this.add.text(0, 0, '선택', { fontSize: btnSelect.displayHeight/3, fontStyle: 'bold'});
     txtSelect.x = btnSelect.x - txtSelect.displayWidth/2;
     txtSelect.y = btnSelect.y - txtSelect.displayHeight/2;
@@ -422,23 +469,22 @@ class ChooseItemScene extends Phaser.Scene {
 
 }
 
+
 class FightScene extends Phaser.Scene {
   constructor() {
     super({ key: 'third' });
   }
   //get data from pre scene
   init() {
-    this.monster = {
-      HP : (level*3)+10+(tier*2),
-      ATK : (level*1)+4+(tier*1)
-    }
     this.timer = 0;
     this.turn = 'p';
   }
 
   preload() {
-    this.load.image('player','img/character'+player.ID+'.png');
-    this.load.image('status', 'img/status.png');
+    this.load.image('char1','img/character1.png');
+    this.load.image('char2','img/character2.png');
+    this.load.image('char3','img/character3.png');
+    this.load.image('UI', 'img/status.png');
     this.load.image('inventory', 'img/inventory.png');
     this.load.image('item1','img/item1.png');
     this.load.image('item2','img/item2.png');
@@ -452,52 +498,105 @@ class FightScene extends Phaser.Scene {
 
   create() {
     //create container
-    let container = this.add.container(400, 500);
+    let container = this.add.container(gameWidth/2,gameHeight*0.85).setSize(gameWidth,gameHeight*0.3);
     //view status
-    let status = this.add.image(-200, 0, 'status').setDisplaySize(400,200);
-    this.HP = this.add.text(-380, -80, 'HP: '+player.HP, { fontsize: '40px', fill: '#000' });
-    let ATK = this.add.text(-380, -40, 'ATK: '+player.ATK, { fontsize: '40px', fill: '#000' });
+    let status = this.add.image(0, 0, 'UI').setDisplaySize(gameWidth-10,gameHeight/4);
+    this.HP = this.add.text(-100, -60, 'HP: '+player.HP, { fontsize: '40px', fill: '#000' });
+    let ATK = this.add.text(-100, -20, 'ATK: '+player.ATK, { fontsize: '40px', fill: '#000' });
 
-    //view inventory
-    let inventory = this.add.group({
-      key: 'inventory',
-      repeat: 1,
-      setXY: { x: 100, y: 0, stepX: 200 }
-    }).getChildren();
-    inventory[0].setDisplaySize(200,200);
-    inventory[1].setDisplaySize(200,200);
+    this.playerImg = this.add.sprite(100, 300, 'item1').setDisplaySize(100,100);
 
-    let imgWeapon, imgArmor;
-    if (equip.weapon.ID != undefined) {
-      imgWeapon = this.add.image(100,0,'item'+equip.weapon.ID).setDisplaySize(150,150);
-    } else {
-      imgWeapon = this.add.image(100,0,'blank').setDisplaySize(150,150);
-    }
-    if (equip.armor.ID != undefined) {
-      imgArmor = this.add.image(300,0,'item'+equip.armor.ID).setDisplaySize(150,150);
-    } else {
-      imgArmor = this.add.image(100,0,'blank').setDisplaySize(150,150);
-    }
+    this.monsterImg = this.add.sprite(300, 300, 'item1').setDisplaySize(100,100);
+
+    this.anims.create({
+      key: 'play',
+      frames: [
+          { key: 'item1' },
+          { key: 'item2' },
+          { key: 'item3' },
+          { key: 'item4', duration: 50 }
+      ],
+      frameRate: 10,
+      repeat: 0,
+    });
 
     container.add(status);
     container.add(this.HP);
     container.add(ATK);
-    container.add(inventory);
-    container.add(imgWeapon);
-    container.add(imgArmor);
 
+//===============================================MONSTER=============================================================================
+
+    this.monster = {
+      HP : 0,
+      ATK : 0,
+      SPECIAL : 'None'
+    }
     //monster's status
-    this.M__HP = this.add.text(-100, -80, 'M_HP: '+this.monster.HP, { fontsize: '40px', fill: '#000' });
-    let M__ATK = this.add.text(-100, -40, 'M_ATK: '+this.monster.ATK, { fontsize: '40px', fill: '#000' });
+    if(level%4 == 0){
+      let Boss_special = Math.floor(Math.random()*4);
+      this.monster.HP = (level*4) + (stage*3) + 1;
+      this.monster.ATK = (level*2) + (stage*2) + 2;
+      if(Boss_special == 0){
+        this.monster.SPECIAL = 'DAttack';
+      }else if(Boss_special == 1){
+        this.monster.SPECIAL = 'GetHP';
+      }else if(Boss_special == 2){
+        this.monster.SPECIAL='Block';
+      }else if(Boss_special == 3){
+        this.monster.SPECIAL='Evade';
+      }
+
+    }else{
+      this.monster.HP = (level*2) + 15;
+      this.monster.ATK = (level);
+      this.monster.SPECIAL = 'None';
+    }
+
+    this.M__HP = this.add.text(80, -60, 'M_HP: '+this.monster.HP, { fontsize: '40px', fill: '#000' });
+    let M__ATK = this.add.text(80, -20, 'M_ATK: '+this.monster.ATK, { fontsize: '40px', fill: '#000' });
     console.log(this.monster);
     container.add(this.M__HP);
     container.add(M__ATK);
 
     //fight event (per 1 second)
-    this.playerHP = player.HP;
-    this.monsterHP = this.monster.HP;
+    if(player.T_HP){
+      this.playerHP = player.HP;
+      player.T_HP = false;
+    }
     this.fightEvent = this.time.addEvent({ delay: 500, callback: this.onEvent, callbackScope: this, loop: true });
 
+    this.input.on('gameobjectdown', function(pointer, button) {
+      button.setTint(0xf0f0f0);
+    });
+    this.input.on('gameobjectup', function(pointer, button) {
+      switch (button.name) {
+        case 'status':
+          let status = {
+            HP: button.getData('hp'),
+            ATK: button.getData('atk'),
+          }
+          player.HP += status.HP;
+          this.playerHP += status.HP;
+          player.ATK += status.ATK;
+          this.scene.start('third');
+          level++;
+          break;
+        case 'replay':
+          player.init();
+          equip.init();
+          level = 1;
+          stage = 1;
+          this.scene.start('first');
+          break;
+        case 'exit':
+          player.init();
+          equip.init();
+          level = 1;
+          stage = 1;
+          this.scene.start('intro');
+          break;
+      }
+    }, this);
   } //create end
 
   update() {
@@ -511,18 +610,60 @@ class FightScene extends Phaser.Scene {
 
   onEvent() {
     //fight with turn
+    let lefthand = Math.floor(Math.random()*99);
     if (this.turn == 'p') {
-      this.monsterHP -= player.ATK;
-      this.M__HP.setText('M_HP: ' + this.monsterHP).setTintFill(0xff0000);
-      if (this.monsterHP<=0) {
-        this.stageClear(true);
+
+      this.playerImg.play('play');
+      if(equip.weapon.SPECIAL == 'DAttack' && lefthand<10){
+        this.monster.HP -= player.ATK;
+        console.log('DoubleAttack!');
+      }else if(equip.weapon.SPECIAL == 'GetHP' && lefthand<99){
+        this.playerHP += 3;
+        this.HP.setText('HP: ' + this.playerHP).setTintFill(0x00ff00);
+        console.log('GetHP +3');
+      }
+
+      this.monster.HP -= player.ATK;
+      if(this.monster.SPECIAL == 'Block' && lefthand<10){
+        this.monster.HP += 3;
+      }else if(this.monster.SPECIAL == 'Evade' && lefthand<10){
+        this.monster.HP += player.ATK;
+      }
+
+      this.M__HP.setText('M_HP: ' + this.monster.HP).setTintFill(0xff0000);
+      if (this.monster.HP<=0) {
         this.fightEvent.remove(false);
+        if(level%4 == 0){
+          level++;
+          stage++;
+          this.playerHP = player.HP;
+          player.T_HP = true;
+          this.scene.start('second');
+        }else{
+          this.stageClear(true);
+        }
       }
       this.turn = 'm';
     } else {
+
+      this.monsterImg.play('play');
+      if(equip.armor.SPECIAL == 'Block' && lefthand<99){         //equip.armor.SPECIAL로 수정하기
+        this.playerHP += 3;
+        console.log('Block!');
+      }else if(equip.armor.SPECIAL == 'Evade' && lefthand<20){
+        this.playerHP += this.monster.ATK;
+        console.log('Evade!');
+      }
+
       this.playerHP -= this.monster.ATK;
+      if(this.monster.SPECIAL == 'DAttack' && lefthand<10){
+        this.playerHP -= this.monster.ATK;
+      }else if(this.monster.SPECIAL == 'GetHP' && lefthand<10){
+        this.monster.HP += 3;
+      }
+
       this.HP.setText('HP: ' + this.playerHP).setTintFill(0xff0000);
-      if (this.playerHP<=0 && this.monsterHP>0) {
+      if (this.playerHP<=0 && this.monster.HP>0) {
         this.stageClear(false);
         this.fightEvent.remove(false);
       }
@@ -530,58 +671,81 @@ class FightScene extends Phaser.Scene {
     }
   }
 
+
+  statRandom(){
+    let ATK__status = 0;
+    let HP__status = 0;
+    let ranStatus = Math.floor(Math.random()*3);
+
+//=================================================STATUS=====================
+
+    if(ranStatus==0){
+      ATK__status = Math.floor(Math.random()*2)+1+1*stage;
+    }
+    else if(ranStatus==1){
+      HP__status = Math.floor(Math.random()*3)+1+2*stage;
+    }
+    else if(ranStatus==2){
+      HP__status = Math.floor(Math.random()*2)+1+1*stage;
+      ATK__status = Math.floor(Math.random()*1)+1+1*stage;
+    }
+    let status = {
+      HP: HP__status,
+      ATK: ATK__status
+    }
+
+    return status;
+  }
+
+  createStatus(x,y,status){
+    let container = this.add.container(x,y).setSize(gameWidth*0.5,gameHeight*0.3);
+    let imgBg = this.add.image(0, 0, 'UI').setDisplaySize(container.width,container.height);
+    let imgStatusBg = this.add.image(0, container.height*0.2, 'UI').setDisplaySize(container.width, container.height*0.5-container.width/6);
+    let txtStatus = this.add.text(-imgStatusBg.displayWidth/2, 0, [
+      'HP: ' + status.HP,
+      'ATK: ' + status.ATK,
+    ], { fontSize: imgStatusBg.displayHeight/4, fontStyle: 'bold' }).setPadding({ left: 8 });
+    txtStatus.y = imgStatusBg.y - txtStatus.height/2;
+
+    let btnSelect = this.add.image(0, container.height*0.38, 'button').setDisplaySize(container.width/3,container.width/6).setInteractive();
+    let txtSelect = this.add.text(0, 0, '선택', { fontSize: btnSelect.displayHeight/3, fontStyle: 'bold'});
+    txtSelect.x = btnSelect.x - txtSelect.displayWidth/2;
+    txtSelect.y = btnSelect.y - txtSelect.displayHeight/2;
+
+    btnSelect.setName('status');
+    btnSelect.setData({hp: status.HP, atk: status.ATK });
+
+    container.add([imgBg, imgStatusBg, txtStatus, btnSelect, txtSelect]);
+
+    return container;
+  }
   //show ui when stage clear or fail
   stageClear(clear) {
     if (clear) {
-      console.log('Win!');
-      this.add.image(400, 200, 'win').setDisplaySize(400,300);
 
-      this.add.image(400, 400, 'button').setDisplaySize(200,100).setInteractive();
-      this.add.text(340, 385, '다음', { fontSize: 30, fontStyle: 'bold' });
-
-      this.input.on('gameobjectover', function(pointer, button) {
-        button.setTint(0xf0f0f0);
-      });
-      this.input.on('gameobjectout', function(pointer, button) {
-        button.clearTint();
-      });
-      this.input.on('gameobjectdown', function(pointer, button) {
-        level++;
-        this.scene.start('second');
-      }, this);
+      this.createStatus(gameWidth/4, gameHeight*0.25, this.statRandom());
+      this.createStatus(gameWidth/4*3, gameHeight*0.25, this.statRandom());
+      this.createStatus(gameWidth/4, gameHeight*0.55, this.statRandom());
+      this.createStatus(gameWidth/4*3, gameHeight*0.55, this.statRandom());
 
     } else {
       console.log('Fail...');
-      this.add.image(400, 200, 'lose').setDisplaySize(400,300);
+      let container = this.add.container(gameWidth*0.6, gameHeight/2).setSize(gameWidth/2, gameHeight/2);
+      let imgBg = this.add.image(0, 0, 'UI').setDisplaySize(container.width,container.height);
+      let imgLose = this.add.image(0, -container.height*0.3, 'lose').setDisplaySize(container.width,container.height*0.6);
+      let btnReplay = this.add.image(-container.width*0.2, container.height*0.3, 'button').setDisplaySize(container.width*0.3,container.width*0.15).setInteractive();
+      let txtReplay = this.add.text(0, 0, '다시시작', { fontSize: btnReplay.displayHeight/3, fontStyle: 'bold' });
+      txtReplay.x = btnReplay.x - txtReplay.width/2;
+      txtReplay.y = btnReplay.y - txtReplay.height/2;
+      let btnExit = this.add.image(container.width*0.2, container.height*0.3, 'button').setDisplaySize(container.width*0.3,container.width*0.15).setInteractive();;
+      let txtExit = this.add.text(0, 0, '게임종료', { fontSize: btnExit.displayHeight/3, fontStyle: 'bold' });
+      txtExit.x = btnExit.x - txtExit.width/2;
+      txtExit.y = btnExit.y - txtExit.height/2;
 
-      let btnReplay = this.add.image(300, 400, 'button').setDisplaySize(200,100).setInteractive();
-      this.add.text(240, 385, '다시시작', { fontSize: 30, fontStyle: 'bold' });
-      let btnExit = this.add.image(500, 400, 'button').setDisplaySize(200,100).setInteractive();;
-      this.add.text(440, 385, '게임종료', { fontSize: 30, fontStyle: 'bold' });
       btnReplay.name = 'replay';
       btnExit.name = 'exit';
 
-      this.input.on('gameobjectover', function(pointer, button) {
-        button.setTint(0xf0f0f0);
-      });
-      this.input.on('gameobjectout', function(pointer, button) {
-        button.clearTint();
-      });
-      this.input.on('gameobjectdown', function(pointer, button) {
-        player.init();
-        equip.init();
-        level = 1;
-        tier = 1;
-        switch (button.name) {
-          case 'replay':
-            this.scene.start('first');
-            break;
-          case 'exit':
-            this.scene.start('intro');
-            break;
-        }
-      }, this);
-
+      container.add([imgBg, imgLose, btnReplay, txtReplay, btnExit, txtExit]);
     }
   }
 
