@@ -245,91 +245,102 @@ class ChooseItemScene extends Phaser.Scene {
     let imgStatusBg = this.add.image(container.width*0.15, container.height*0.3, 'UI').setDisplaySize(container.width*0.7,container.height*0.4);
     let playerStatus = {
       HP: this.add.text(imgStatusBg.x-imgStatusBg.displayWidth/2, imgStatusBg.y-imgStatusBg.displayHeight/2, 'HP: '+player.HP, { fontSize: imgStatusBg.displayHeight/4, fontStyle: 'bold' }).setPadding({ left: 8, top: 8 }),
-      ATK: this.add.text(imgStatusBg.x-imgStatusBg.displayWidth/2, imgStatusBg.y-imgStatusBg.displayHeight/4, 'ATK: '+player.ATK, { fontSize: imgStatusBg.displayHeight/4, fontStyle: 'bold' }).setPadding({ left: 8, top: 8 })/*,
-      WHP: this.add.text(430, 80, 'WHP: '+equip.weapon.HP, { fontSize: '20px', fill: '#000' }),
-      WATK: this.add.text(430, 100, 'WATK: '+equip.weapon.ATK, { fontSize: '20px', fill: '#000' }),
-      SHP: this.add.text(530, 80, 'SHP: '+shp, { fontSize: '20px', fill: '#000' }),
-      SATK: this.add.text(530, 100, 'SATK: '+satk , { fontSize: '20px', fill: '#000' })*/
+      ATK: this.add.text(imgStatusBg.x-imgStatusBg.displayWidth/2, imgStatusBg.y-imgStatusBg.displayHeight/4, 'ATK: '+player.ATK, { fontSize: imgStatusBg.displayHeight/4, fontStyle: 'bold' }).setPadding({ left: 8, top: 8 })
     }
     container.add([imgBg,imgChar,imgWeaponBg,imgWeapon,imgArmorBg,imgArmor,imgStatusBg, playerStatus.HP, playerStatus.ATK]);
 
     //create item selection
-    this.createItem(gameWidth/4, gameHeight*0.25, this.setRandom());
-    this.createItem(gameWidth/4*3, gameHeight*0.25, this.setRandom());
-    this.createItem(gameWidth/4, gameHeight*0.55, this.setRandom());
-    this.createItem(gameWidth/4*3, gameHeight*0.55, this.setRandom());
+    let itemList = [
+      this.createItem(gameWidth/4, gameHeight*0.25, this.setRandom()),
+      this.createItem(gameWidth/4*3, gameHeight*0.25, this.setRandom()),
+      this.createItem(gameWidth/4, gameHeight*0.55, this.setRandom()),
+      this.createItem(gameWidth/4*3, gameHeight*0.55, this.setRandom())
+    ]
 
-    this.input.on('gameobjectover', function(pointer, gameObject) {
-      //clear item tint
-      gameObject.clearTint();
+    this.input.on('gameobjectdown', function(pointer, gameObject) {
+      if (gameObject.name == 'conPick') {
+        if (gameObject.getData('pick')) {
+          gameObject.setData('pick',false);
+          //hide button and show item image
+          gameObject.getByName('btnPick').setVisible(false);
+          gameObject.getByName('txtPick').setVisible(false);
+          gameObject.getByName('imgItem').setVisible(true);
 
-      //call data variable
-      let itemPART = gameObject.getData('part');
-      let itemHP = gameObject.getData('hp');
-      let itemATK = gameObject.getData('atk');
+          playerStatus.HP.setText('HP: ' + player.HP).clearTint();
+          playerStatus.ATK.setText('ATK: ' + player.ATK).clearTint();
 
-      //show status change
-        if (itemPART=='weapon') {
-          playerStatus.HP.setText('HP: ' + (player.HP-equip.weapon.HP+itemHP));
-          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.weapon.ATK+itemATK));
-
-          if (equip.weapon.HP<itemHP) {
-            playerStatus.HP.setTintFill(0x00ff00);
-          } else if (equip.weapon.HP>itemHP) {
-            playerStatus.HP.setTintFill(0xff0000);
+        } else {
+          //hide item image and show button & status change
+          for (let item of itemList) {
+            if (item == gameObject) {
+              item.setData('pick',true);
+              item.getByName('btnPick').setVisible(true);
+              item.getByName('txtPick').setVisible(true);
+              item.getByName('imgItem').setVisible(false);
+            } else {
+              item.setData('pick',false);
+              item.getByName('btnPick').setVisible(false);
+              item.getByName('txtPick').setVisible(false);
+              item.getByName('imgItem').setVisible(true);
+            }
           }
-          if (equip.weapon.ATK<itemATK) {
-            playerStatus.ATK.setTintFill(0x00ff00);
-          } else if (equip.weapon.ATK>itemATK) {
-            playerStatus.ATK.setTintFill(0xff0000);
-          }
-        } else if (itemPART=='armor') {
-          playerStatus.HP.setText('HP: ' +  (player.HP-equip.armor.HP+itemHP));
-          playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.armor.ATK+itemATK));
 
-          if (equip.armor.HP<itemHP) {
-            playerStatus.HP.setTintFill(0x00ff00);
-          } else if (equip.armor.HP>itemHP) {
-            playerStatus.HP.setTintFill(0xff0000);
-          }
-          if (equip.armor.ATK<itemATK) {
-            playerStatus.ATK.setTintFill(0x00ff00);
-          } else if (equip.armor.ATK>itemATK) {
-            playerStatus.ATK.setTintFill(0xff0000);
-          }
-        }else if (itemPART == 'status'){
-          playerStatus.HP.setText('HP: ' + (player.HP+itemHP));
-          playerStatus.ATK.setText('ATK: ' + (player.ATK+itemATK));
 
-          if (equip.status.HP<itemHP) {
-            playerStatus.HP.setTintFill(0x00ff00);
-          } else if (equip.status.HP>itemHP) {
-            playerStatus.HP.setTintFill(0xff0000);
-          }
-          if (equip.status.ATK<itemATK) {
-            playerStatus.ATK.setTintFill(0x00ff00);
-          } else if (equip.status.ATK>itemATK) {
-            playerStatus.ATK.setTintFill(0xff0000);
+          //call data variable
+          let itemPART = gameObject.getByName('btnPick').getData('part');
+          let itemHP = gameObject.getByName('btnPick').getData('hp');
+          let itemATK = gameObject.getByName('btnPick').getData('atk');
+
+          //initialize player status text
+          playerStatus.HP.setText('HP: ' + player.HP).clearTint();
+          playerStatus.ATK.setText('ATK: ' + player.ATK).clearTint();
+
+          //show status change
+          if (itemPART=='weapon') {
+            playerStatus.HP.setText('HP: ' + (player.HP-equip.weapon.HP+itemHP));
+            playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.weapon.ATK+itemATK));
+
+            if (equip.weapon.HP<itemHP) {
+              playerStatus.HP.setTintFill(0x00ff00);
+            } else if (equip.weapon.HP>itemHP) {
+              playerStatus.HP.setTintFill(0xff0000);
+            }
+            if (equip.weapon.ATK<itemATK) {
+              playerStatus.ATK.setTintFill(0x00ff00);
+            } else if (equip.weapon.ATK>itemATK) {
+              playerStatus.ATK.setTintFill(0xff0000);
+            }
+          } else if (itemPART=='armor') {
+            playerStatus.HP.setText('HP: ' +  (player.HP-equip.armor.HP+itemHP));
+            playerStatus.ATK.setText('ATK: ' + (player.ATK-equip.armor.ATK+itemATK));
+
+            if (equip.armor.HP<itemHP) {
+              playerStatus.HP.setTintFill(0x00ff00);
+            } else if (equip.armor.HP>itemHP) {
+              playerStatus.HP.setTintFill(0xff0000);
+            }
+            if (equip.armor.ATK<itemATK) {
+              playerStatus.ATK.setTintFill(0x00ff00);
+            } else if (equip.armor.ATK>itemATK) {
+              playerStatus.ATK.setTintFill(0xff0000);
+            }
+          } else {
+            //set button tint
+            gameObject.setTint(0x606060);
           }
         }
+      }
     }, this);
-    this.input.on('gameobjectdown', function(pointer, button) {
-      //set tint
-      button.setTint(0x505050);
-
-      //set status original
-      playerStatus.HP.setText('HP: '+player.HP).clearTint();
-      playerStatus.ATK.setText('ATK: '+player.ATK).clearTint();
-    }, this);
-    this.input.on('gameobjectup', function(pointer, button) {
+    this.input.on('gameobjectup', function(pointer, gameObject) {
+      if (gameObject.name == 'conPick') { return; }
       //set tint to show it clearly
-      button.clearTint();
+      gameObject.clearTint();
       //create item object & push into equip
       let item = {
-        ID: button.name,
-        PART: button.getData('part'),
-        HP: button.getData('hp'),
-        ATK: button.getData('atk')
+        ID: gameObject.getData('id'),
+        PART: gameObject.getData('part'),
+        HP: gameObject.getData('hp'),
+        ATK: gameObject.getData('atk')
       }
       switch (item.PART) {
         case 'weapon':
@@ -341,12 +352,6 @@ class ChooseItemScene extends Phaser.Scene {
           player.HP += (item.HP-equip.armor.HP);
           player.ATK += (item.ATK-equip.armor.ATK);
           equip.armor = item;
-          break;
-        case 'status':
-          player.HP += (item.HP);
-          player.ATK += (item.ATK);
-          shp += item.HP;
-          satk += item.ATK;
           break;
       }
       console.log("item: ", item);
@@ -392,8 +397,8 @@ class ChooseItemScene extends Phaser.Scene {
   createItem(x, y, item) {
     let container = this.add.container(x,y).setSize(gameWidth*0.5,gameHeight*0.3);
     let imgBg = this.add.image(0, 0, 'UI').setDisplaySize(container.width,container.height);
-    let imgItem = this.add.image(0, -container.height*0.2, 'item'+item.ID).setDisplaySize(container.height*0.6,container.height*0.6);
-    let imgStatusBg = this.add.image(0, container.height*0.2, 'UI').setDisplaySize(container.width, container.height*0.4-container.width/6);
+    let imgItem = this.add.image(0, -container.height*0.2, 'item'+item.ID).setDisplaySize(container.height*0.6,container.height*0.6).setName('imgItem');
+    let imgStatusBg = this.add.image(0, container.height*0.3, 'UI').setDisplaySize(container.width, container.height*0.4);
     let txtStatus = this.add.text(-imgStatusBg.displayWidth/2, 0, [
       'PART: ' + item.PART,
       'HP: ' + item.HP,
@@ -401,15 +406,16 @@ class ChooseItemScene extends Phaser.Scene {
     ], { fontSize: imgStatusBg.displayHeight/4, fontStyle: 'bold' }).setPadding({ left: 8 });
     txtStatus.y = imgStatusBg.y - txtStatus.height/2;
 
-    let btnSelect = this.add.image(0, container.height*0.38, 'button').setDisplaySize(container.width/3,container.width/6).setInteractive();
+    let btnSelect = this.add.image(0, -container.height*0.2, 'button').setDisplaySize(container.width/2,container.width/4).setInteractive();
+    btnSelect.setName('btnPick').setVisible(false);
+    btnSelect.setData({ id: item.ID, part: item.PART, hp: item.HP, atk: item.ATK });
     let txtSelect = this.add.text(0, 0, 'º±≈√', { fontSize: btnSelect.displayHeight/3, fontStyle: 'bold'});
     txtSelect.x = btnSelect.x - txtSelect.displayWidth/2;
     txtSelect.y = btnSelect.y - txtSelect.displayHeight/2;
-
-    btnSelect.setName(item.ID);
-    btnSelect.setData({ part: item.PART, hp: item.HP, atk: item.ATK });
+    txtSelect.setName('txtPick').setVisible(false);
 
     container.add([imgBg, imgItem, imgStatusBg, txtStatus, btnSelect, txtSelect]);
+    container.setName('conPick').setData('pick', false).setInteractive();
 
     return container;
   }
@@ -438,7 +444,6 @@ class FightScene extends Phaser.Scene {
     this.load.image('item2','img/item2.png');
     this.load.image('item3','img/item3.png');
     this.load.image('item4','img/item4.png');
-    this.load.image('fight','img/fight.png');
     this.load.image('blank','img/blank.png');
     this.load.image('win', 'img/win.png');
     this.load.image('lose', 'img/lose.png');
